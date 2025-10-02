@@ -89,6 +89,74 @@ const getDadJoke = server.tool(
   }
 );
 
+// Get order information tool
+const getOrderInfo = server.tool(
+  "get-order-info",  
+  "Get order tracking information by order number",
+  {
+    orderNumber: z.string().describe("The order number to look up"),
+  },
+  async (params: { orderNumber: string }) => {
+    try {
+      const response = await fetch(
+        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/email/${params.orderNumber}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Order ${params.orderNumber} not found.`,
+              },
+            ],
+          };
+        } else {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Error fetching order ${params.orderNumber}: ${response.status} ${response.statusText}`,
+              },
+            ],
+          };
+        }
+      }
+      
+      const data = await response.json();
+      
+      // Format the response nicely
+      const formattedInfo = typeof data === 'object' 
+        ? JSON.stringify(data, null, 2) 
+        : data.toString();
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Order Information for ${params.orderNumber}:\n\n${formattedInfo}`,
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to fetch order information: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          },
+        ],
+      };
+    }
+  }
+);
+
 const app = express();
 app.use(express.json());
 
