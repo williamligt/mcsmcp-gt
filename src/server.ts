@@ -99,7 +99,7 @@ const getOrderInfo = server.tool(
   async (params: { orderNumber: string }) => {
     try {
       const response = await fetch(
-        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/email/${params.orderNumber}`,
+        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/${params.orderNumber}`,
         {
           headers: {
             Accept: "application/json",
@@ -131,16 +131,11 @@ const getOrderInfo = server.tool(
       
       const data = await response.json();
       
-      // Format the response nicely
-      const formattedInfo = typeof data === 'object' 
-        ? JSON.stringify(data, null, 2) 
-        : data.toString();
-      
       return {
         content: [
           {
             type: "text",
-            text: `Order Information for ${params.orderNumber}:\n\n${formattedInfo}`,
+            text: JSON.stringify(data),
           },
         ],
       };
