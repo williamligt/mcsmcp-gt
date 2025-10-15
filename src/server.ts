@@ -8,87 +8,6 @@ const server = new McpServer({
   version: "1.0.0",
 });
 
-// Get Chuck Norris joke tool
-const getChuckJoke = server.tool(
-  "get-chuck-joke",
-  "Get a random Chuck Norris joke",
-  async () => {
-    const response = await fetch("https://api.chucknorris.io/jokes/random");
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.value,
-        },
-      ],
-    };
-  }
-);
-
-// Get Chuck Norris joke by category tool
-const getChuckJokeByCategory = server.tool(
-  "get-chuck-joke-by-category",
-  "Get a random Chuck Norris joke by category",
-  {
-    category: z.string().describe("Category of the Chuck Norris joke"),
-  },
-  async (params: { category: string }) => {
-    const response = await fetch(
-      `https://api.chucknorris.io/jokes/random?category=${params.category}`
-    );
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.value,
-        },
-      ],
-    };
-  }
-);
-
-// Get Chuck Norris joke categories tool
-const getChuckCategories = server.tool(
-  "get-chuck-categories",
-  "Get all available categories for Chuck Norris jokes",
-  async () => {
-    const response = await fetch("https://api.chucknorris.io/jokes/categories");
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.join(", "),
-        },
-      ],
-    };
-  }
-);
-
-// Get Dad joke tool
-const getDadJoke = server.tool(
-  "get-dad-joke",
-  "Get a random dad joke",
-  async () => {
-    const response = await fetch("https://icanhazdadjoke.com/", {
-      headers: {
-        Accept: "application/json",
-      },
-    });
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.joke,
-        },
-      ],
-    };
-  }
-);
-
 // Get order information tool
 const getOrderInfo = server.tool(
   "get-order-info",  
@@ -145,6 +64,69 @@ const getOrderInfo = server.tool(
           {
             type: "text",
             text: `Failed to fetch order information: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          },
+        ],
+      };
+    }
+  }
+);
+
+// Get order email tool
+const getOrderEmail = server.tool(
+  "get-order-email",  
+  "Get order tracking information formatted as an email by order number",
+  {
+    orderNumber: z.string().describe("The order number to look up"),
+  },
+  async (params: { orderNumber: string }) => {
+    try {
+      const response = await fetch(
+        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/email/${params.orderNumber}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Order ${params.orderNumber} not found.`,
+              },
+            ],
+          };
+        } else {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Error fetching order email ${params.orderNumber}: ${response.status} ${response.statusText}`,
+              },
+            ],
+          };
+        }
+      }
+      
+      const data = await response.json();
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(data),
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to fetch order email: ${error instanceof Error ? error.message : 'Unknown error'}`,
           },
         ],
       };
