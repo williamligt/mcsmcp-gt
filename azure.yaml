@@ -1,12 +1,12 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
-name: jokesmcp-http-typescript
+name: wismo-mcp
 metadata:
   template: azd-init@1.15.1
 services:
-  jokesmcp-http-typescript:
+  wismo-mcp:
     project: .
     host: containerapp
     language: js
     docker:
-      path: Dockerfile
+      path: ./Dockerfile

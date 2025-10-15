@@ -9,12 +9,17 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
-param jokesmcpHttpTypescriptExists bool
+param wismoMcpExists bool
 
 @description('Id of the user or app to assign application roles')
 param principalId string
 
-// Tags that should be applied to all resources.
+param logAnalyticsName string
+param applicationInsightsName string
+param containerRegistryName string
+param containerAppsEnvironmentName string
+param identityName string
+param containerAppName string
 // 
 // Note that 'azd-service-name' tags should be applied separately to service host resources.
 // Example usage:
@@ -37,8 +42,14 @@ module resources 'resources.bicep' = {
     location: location
     tags: tags
     principalId: principalId
-    jokesmcpHttpTypescriptExists: jokesmcpHttpTypescriptExists
+    wismoMcpExists: wismoMcpExists
+    logAnalyticsName: logAnalyticsName
+    applicationInsightsName: applicationInsightsName
+    containerRegistryName: containerRegistryName
+    containerAppsEnvironmentName: containerAppsEnvironmentName
+    identityName: identityName
+    containerAppName: containerAppName
   }
 }
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
-output AZURE_RESOURCE_JOKESMCP_HTTP_TYPESCRIPT_ID string = resources.outputs.AZURE_RESOURCE_JOKESMCP_HTTP_TYPESCRIPT_ID
+output AZURE_RESOURCE_WISMO_MCP_ID string = resources.outputs.AZURE_RESOURCE_WISMO_MCP_ID

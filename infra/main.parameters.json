@@ -8,11 +8,29 @@
       "location": {
         "value": "${AZURE_LOCATION}"
       },
-      "jokesmcpHttpTypescriptExists": {
-        "value": "${SERVICE_JOKESMCP_HTTP_TYPESCRIPT_RESOURCE_EXISTS=false}"
+      "wismoMcpExists": {
+        "value": "${SERVICE_WISMO_MCP_RESOURCE_EXISTS=false}"
       },
       "principalId": {
         "value": "${AZURE_PRINCIPAL_ID}"
+      },
+      "logAnalyticsName": {
+        "value": "${LOG_ANALYTICS_NAME}"
+      },
+      "applicationInsightsName": {
+        "value": "${APPLICATION_INSIGHTS_NAME}"
+      },
+      "containerRegistryName": {
+        "value": "${CONTAINER_REGISTRY_NAME}"
+      },
+      "containerAppsEnvironmentName": {
+        "value": "${CONTAINER_APPS_ENVIRONMENT_NAME}"
+      },
+      "identityName": {
+        "value": "${IDENTITY_NAME}"
+      },
+      "containerAppName": {
+        "value": "${CONTAINER_APP_NAME}"
       }
     }
 }

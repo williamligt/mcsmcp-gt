@@ -4,22 +4,27 @@ param location string = resourceGroup().location
 @description('Tags that will be applied to all resources')
 param tags object = {}
 
-
-param jokesmcpHttpTypescriptExists bool
+param wismoMcpExists bool
 
 @description('Id of the user or app to assign application roles')
 param principalId string
 
+param logAnalyticsName string
+param applicationInsightsName string
+param containerRegistryName string
+param containerAppsEnvironmentName string
+param identityName string
+param containerAppName string
+
 var abbrs = loadJsonContent('./abbreviations.json')
-var resourceToken = uniqueString(subscription().id, resourceGroup().id, location)
 
 // Monitor application with Azure Monitor
 module monitoring 'br/public:avm/ptn/azd/monitoring:0.1.0' = {
   name: 'monitoring'
   params: {
-    logAnalyticsName: '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
-    applicationInsightsName: '${abbrs.insightsComponents}${resourceToken}'
-    applicationInsightsDashboardName: '${abbrs.portalDashboards}${resourceToken}'
+    logAnalyticsName: logAnalyticsName
+    applicationInsightsName: applicationInsightsName
+    applicationInsightsDashboardName: '${abbrs.portalDashboards}${uniqueString(subscription().id, resourceGroup().id, location)}'
     location: location
     tags: tags
   }
@@ -28,13 +33,13 @@ module monitoring 'br/public:avm/ptn/azd/monitoring:0.1.0' = {
 module containerRegistry 'br/public:avm/res/container-registry/registry:0.1.1' = {
   name: 'registry'
   params: {
-    name: '${abbrs.containerRegistryRegistries}${resourceToken}'
+    name: containerRegistryName
     location: location
     tags: tags
     publicNetworkAccess: 'Enabled'
     roleAssignments:[
       {
-        principalId: jokesmcpHttpTypescriptIdentity.outputs.principalId
+        principalId: wismoMcpIdentity.outputs.principalId
         principalType: 'ServicePrincipal'
         roleDefinitionIdOrName: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
       }
@@ -47,31 +52,31 @@ module containerAppsEnvironment 'br/public:avm/res/app/managed-environment:0.4.5
   name: 'container-apps-environment'
   params: {
     logAnalyticsWorkspaceResourceId: monitoring.outputs.logAnalyticsWorkspaceResourceId
-    name: '${abbrs.appManagedEnvironments}${resourceToken}'
+    name: containerAppsEnvironmentName
     location: location
     zoneRedundant: false
   }
 }
 
-module jokesmcpHttpTypescriptIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
-  name: 'jokesmcpHttpTypescriptidentity'
+module wismoMcpIdentity 'br/public:avm/res/managed-identity/user-assigned-identity:0.2.1' = {
+  name: 'wismoMcpIdentity'
   params: {
-    name: '${abbrs.managedIdentityUserAssignedIdentities}jokesmcpHttpTypescript-${resourceToken}'
+    name: identityName
     location: location
   }
 }
-module jokesmcpHttpTypescriptFetchLatestImage './modules/fetch-container-image.bicep' = {
-  name: 'jokesmcpHttpTypescript-fetch-image'
+module wismoMcpFetchLatestImage './modules/fetch-container-image.bicep' = {
+  name: 'wismoMcp-fetch-image'
   params: {
-    exists: jokesmcpHttpTypescriptExists
-    name: 'jokesmcp-http-typescript'
+    exists: wismoMcpExists
+    name: containerAppName
   }
 }
 
-module jokesmcpHttpTypescript 'br/public:avm/res/app/container-app:0.8.0' = {
-  name: 'jokesmcpHttpTypescript'
+module wismoMcp 'br/public:avm/res/app/container-app:0.8.0' = {
+  name: 'wismoMcp'
   params: {
-    name: 'jokesmcp-http-typescript'
+    name: containerAppName
     ingressTargetPort: 3000
     scaleMinReplicas: 1
     scaleMaxReplicas: 10
@@ -81,7 +86,7 @@ module jokesmcpHttpTypescript 'br/public:avm/res/app/container-app:0.8.0' = {
     }
     containers: [
       {
-        image: jokesmcpHttpTypescriptFetchLatestImage.outputs.?containers[?0].?image ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
+        image: wismoMcpFetchLatestImage.outputs.?containers[?0].?image ?? 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
         name: 'main'
         resources: {
           cpu: json('0.5')
@@ -94,7 +99,7 @@ module jokesmcpHttpTypescript 'br/public:avm/res/app/container-app:0.8.0' = {
           }
           {
             name: 'AZURE_CLIENT_ID'
-            value: jokesmcpHttpTypescriptIdentity.outputs.clientId
+            value: wismoMcpIdentity.outputs.clientId
           }
           {
             name: 'PORT'
@@ -105,18 +110,18 @@ module jokesmcpHttpTypescript 'br/public:avm/res/app/container-app:0.8.0' = {
     ]
     managedIdentities:{
       systemAssigned: false
-      userAssignedResourceIds: [jokesmcpHttpTypescriptIdentity.outputs.resourceId]
+      userAssignedResourceIds: [wismoMcpIdentity.outputs.resourceId]
     }
     registries:[
       {
         server: containerRegistry.outputs.loginServer
-        identity: jokesmcpHttpTypescriptIdentity.outputs.resourceId
+        identity: wismoMcpIdentity.outputs.resourceId
       }
     ]
     environmentResourceId: containerAppsEnvironment.outputs.resourceId
     location: location
-    tags: union(tags, { 'azd-service-name': 'jokesmcp-http-typescript' })
+    tags: union(tags, { 'azd-service-name': 'wismo-mcp' })
   }
 }
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerRegistry.outputs.loginServer
-output AZURE_RESOURCE_JOKESMCP_HTTP_TYPESCRIPT_ID string = jokesmcpHttpTypescript.outputs.resourceId
+output AZURE_RESOURCE_WISMO_MCP_ID string = wismoMcp.outputs.resourceId
