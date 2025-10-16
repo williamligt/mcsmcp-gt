@@ -134,6 +134,62 @@ const getOrderEmail = server.tool(
   }
 );
 
+// Get products tool
+const getProducts = server.tool(
+  "get-products",
+  "Get product information by SKU numbers",
+  {
+    skus: z.array(z.string()).describe("Array of SKU numbers to look up"),
+  },
+  async (params: { skus: string[] }) => {
+    try {
+      const response = await fetch(
+        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/products/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({ skus: params.skus }),
+        }
+      );
+      
+      if (!response.ok) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error fetching products: ${response.status} ${response.statusText}`,
+            },
+          ],
+        };
+      }
+      
+      const data = await response.json();
+      
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(data, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to fetch product information: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          },
+        ],
+      };
+    }
+  }
+);
+
+
 const app = express();
 app.use(express.json());
 
