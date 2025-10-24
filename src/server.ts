@@ -2,15 +2,16 @@ import express, { Request, Response } from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
+import { OrderNumberSchema, OrderNumberListSchema, ProductSchema } from "./schemas.js";
 
 const server = new McpServer({
   name: "mcp-streamable-http",
   version: "1.0.0",
 });
 
-// Get order information tool
+// Get order information tool  
 const getOrderInfo = server.tool(
-  "get-order-info",  
+  "get-order-info",
   "Get order tracking information by order number",
   {
     orderNumber: z.string().describe("The order number to look up"),
@@ -35,6 +36,7 @@ const getOrderInfo = server.tool(
                 text: `Order ${params.orderNumber} not found.`,
               },
             ],
+            isError: true,
           };
         } else {
           return {
@@ -44,19 +46,19 @@ const getOrderInfo = server.tool(
                 text: `Error fetching order ${params.orderNumber}: ${response.status} ${response.statusText}`,
               },
             ],
+            isError: true,
           };
         }
       }
       
       const data = await response.json();
       
+      // Ensure data is an array for structured content
+      const orderList = Array.isArray(data) ? data : [data];
+      
       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify(data),
-          },
-        ],
+        content: [],
+        structuredContent: orderList,
       };
     } catch (error) {
       return {
@@ -66,6 +68,7 @@ const getOrderInfo = server.tool(
             text: `Failed to fetch order information: ${error instanceof Error ? error.message : 'Unknown error'}`,
           },
         ],
+        isError: true,
       };
     }
   }
