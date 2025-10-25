@@ -12,7 +12,7 @@ const server = new McpServer({
 // Get order information tool  
 const getOrderInfo = server.tool(
   "get-order-info",
-  "Get order tracking information by order number",
+  "Get detailed order information by order number",
   {
     orderNumber: z.string().describe("The order number to look up"),
   },
@@ -69,6 +69,67 @@ const getOrderInfo = server.tool(
           },
         ],
         isError: true,
+      };
+    }
+  }
+);
+
+const getOrderOverview = server.tool(
+  "get-order-overview",
+  "Get order overview information by order number",
+  {
+    orderNumber: z.string().describe("The order number to look up"),
+  },
+  async (params: { orderNumber: string }) => {
+    try {
+      const response = await fetch(
+        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/order_overview/${params.orderNumber}`,
+        {
+          headers: {
+            Accept: "application/json",
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Order overview for ${params.orderNumber} not found.`,
+              },
+            ],
+          };
+        } else {
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Error fetching order overview ${params.orderNumber}: ${response.status} ${response.statusText}`,
+              },
+            ],
+          };
+        }
+      }
+      
+      const data = await response.json();
+
+      // ensure data is an array for structured content
+      const overviewList = Array.isArray(data) ? data : [data];
+      
+      return {
+        content: [],
+        structuredContent: overviewList,
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Failed to fetch order overview: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          },
+        ],
       };
     }
   }
