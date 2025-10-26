@@ -208,7 +208,7 @@ const getProducts = server.tool(
   async (params: { skus: string[] }) => {
     try {
       const response = await fetch(
-        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/products/`,
+        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/product_descriptions/`,
         {
           method: "POST",
           headers: {
