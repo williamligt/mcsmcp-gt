@@ -66,6 +66,28 @@ export const ProductSchema = z.object({
   manufacturerName: z.string().describe("Manufacturer name")
 });
 
+
+// OrderOverview schema (single overview object)
+export const OrderOverviewSchema = z.object({
+  originalorderkey: z.string().nullable().describe("Original order key, can be null"),
+  ordernumber: z.string().describe("The order number as a string"),
+  orderbookeddate: z.string().describe("The date the order was booked (ISO format)"),
+  ordersuffix: z.string().describe("The order suffix (backorder level)"),
+  orderstatus: z.string().describe("Status of the order"),
+  issplitorder: z.string().describe("Whether this is a split order (Y/N)"),
+  hassplitorder: z.string().describe("Whether this order has split orders (Y/N)"),
+  isdropship: z.string().describe("Whether this is a dropship order (Y/N)"),
+  isonbackorder: z.string().describe("Whether this is on backorder (Y/N)"),
+  isinvoiced: z.string().describe("Whether this order is invoiced (Y/N)"),
+  totalorderlines: z.number().describe("Total number of order lines"),
+  totalcartons: z.number().describe("Total number of cartons"),
+  totalproducts: z.number().describe("Total number of products")
+});
+
+// OrderOverviewList schema (array of overview objects)
+export const OrderOverviewListSchema = z.array(OrderOverviewSchema).describe("Array of order overview objects");
+
+
 // Type exports for TypeScript usage
 export type Sku = z.infer<typeof SkuSchema>;
 export type Carton = z.infer<typeof CartonSchema>;
@@ -73,6 +95,9 @@ export type OrderNumber = z.infer<typeof OrderNumberSchema>;
 export type OrderNumberList = z.infer<typeof OrderNumberListSchema>;
 export type Product = z.infer<typeof ProductSchema>;
 export type ProductRequest = z.infer<typeof ProductRequestSchema>;
+export type OrderOverview = z.infer<typeof OrderOverviewSchema>;
+export type OrderOverviewList = z.infer<typeof OrderOverviewListSchema>;
+
 
 // Array of OrderNumbers schema
 export const OrderNumberListSchema = z.array(OrderNumberSchema).describe("Array of order numbers with their details");
