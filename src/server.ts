@@ -19,7 +19,7 @@ const getOrderInfo = server.tool(
   async (params: { orderNumber: string }) => {
     try {
       const response = await fetch(
-        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/${params.orderNumber}`,
+        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/order_detail/${params.orderNumber}`,
         {
           headers: {
             Accept: "application/json",
@@ -138,7 +138,7 @@ const getOrderOverview = server.tool(
 // Get order email tool
 const getOrderEmail = server.tool(
   "get-order-email",  
-  "Get order tracking information formatted as an email by order number",
+  "Get order information formatted as an email by order number",
   {
     orderNumber: z.string().describe("The order number to look up"),
   },
