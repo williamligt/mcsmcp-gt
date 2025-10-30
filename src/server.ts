@@ -4,6 +4,8 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { z } from "zod";
 import { OrderNumberSchema, OrderNumberListSchema, ProductSchema } from "./schemas.js";
 
+const api_base_url = "https://ca-odpr-eus-gt-wismo-dev.agreeableriver-391c9765.eastus.azurecontainerapps.io/";
+
 const server = new McpServer({
   name: "mcp-streamable-http",
   version: "1.0.0",
@@ -19,7 +21,7 @@ const getOrderInfo = server.tool(
   async (params: { orderNumber: string }) => {
     try {
       const response = await fetch(
-        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/order_detail/${params.orderNumber}`,
+        `${api_base_url}/order_detail/${params.orderNumber}`,
         {
           headers: {
             Accept: "application/json",
@@ -83,7 +85,7 @@ const getOrderOverview = server.tool(
   async (params: { orderNumber: string }) => {
     try {
       const response = await fetch(
-        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/order_overview/${params.orderNumber}`,
+        `${api_base_url}/order_overview/${params.orderNumber}`,
         {
           headers: {
             Accept: "application/json",
@@ -145,7 +147,7 @@ const getOrderEmail = server.tool(
   async (params: { orderNumber: string }) => {
     try {
       const response = await fetch(
-        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/email/${params.orderNumber}`,
+        `${api_base_url}/email/${params.orderNumber}`,
         {
           headers: {
             Accept: "application/json",
@@ -208,7 +210,7 @@ const getProducts = server.tool(
   async (params: { skus: string[] }) => {
     try {
       const response = await fetch(
-        `https://wismo.proudpond-33fd83f7.canadacentral.azurecontainerapps.io/product_descriptions/`,
+        `${api_base_url}/product_descriptions/`,
         {
           method: "POST",
           headers: {
