@@ -55,12 +55,12 @@ const getOrderInfo = server.tool(
       
       const data = await response.json();
       
-      // Ensure data is an array for structured content
-      const orderList = Array.isArray(data) ? data : [data];
+      // Ensure data is an object for structured content
+      const orderData = Array.isArray(data) ? { orders: data } : data;
       
       return {
         content: [],
-        structuredContent: orderList,
+        structuredContent: orderData,
       };
     } catch (error) {
       return {
@@ -117,12 +117,12 @@ const getOrderOverview = server.tool(
       
       const data = await response.json();
 
-      // ensure data is an array for structured content
-      const overviewList = Array.isArray(data) ? data : [data];
+      // ensure data is an object for structured content
+      const overviewData = Array.isArray(data) ? { overview: data } : data;
       
       return {
         content: [],
-        structuredContent: overviewList,
+        structuredContent: overviewData,
       };
     } catch (error) {
       return {
