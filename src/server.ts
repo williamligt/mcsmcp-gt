@@ -5,6 +5,7 @@ import { z } from "zod";
 import { OrderNumberSchema, OrderNumberListSchema, ProductSchema } from "./schemas.js";
 
 const api_base_url = "https://ca-odpr-eus-gt-wismo-dev.agreeableriver-391c9765.eastus.azurecontainerapps.io/";
+const api_key = process.env.MCP_API_KEY || "";
 
 const server = new McpServer({
   name: "mcp-streamable-http",
@@ -25,6 +26,7 @@ const getOrderInfo = server.tool(
         {
           headers: {
             Accept: "application/json",
+            ...(api_key && { "X-API-Key": api_key }),
           },
         }
       );
@@ -89,6 +91,7 @@ const getOrderOverview = server.tool(
         {
           headers: {
             Accept: "application/json",
+            ...(api_key && { "X-API-Key": api_key }),
           },
         }
       );
@@ -151,6 +154,7 @@ const getOrderEmail = server.tool(
         {
           headers: {
             Accept: "application/json",
+            ...(api_key && { "X-API-Key": api_key }),
           },
         }
       );
@@ -216,6 +220,7 @@ const getProducts = server.tool(
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            ...(api_key && { "X-API-Key": api_key }),
           },
           body: JSON.stringify({ skus: params.skus }),
         }
